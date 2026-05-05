@@ -1,8 +1,8 @@
 # https://github.com/ROCm/ROCm-docker/blob/master/dev/Dockerfile-ubuntu-22.04-complete
 FROM ubuntu:24.04
 
-ARG ROCM_VERSION=7.1.1
-ARG AMDGPU_VERSION=7.0.3
+ARG ROCM_VERSION=7.2
+ARG AMDGPU_VERSION=31.10
 ARG UBUNTU_NAME=noble
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -21,8 +21,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 RUN curl -sL https://repo.radeon.com/rocm/rocm.gpg.key \
     | gpg --dearmor \
     | tee /etc/apt/keyrings/amd-rocm.gpg > /dev/null \
-    && echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/amd-rocm.gpg] https://repo.radeon.com/amdgpu/7.0.3/ubuntu ${UBUNTU_NAME} main" > /etc/apt/sources.list.d/amdgpu.list \
-    && echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/amd-rocm.gpg] https://repo.radeon.com/rocm/apt/7.1.1 ${UBUNTU_NAME} main" > /etc/apt/sources.list.d/rocm.list \
+    && echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/amd-rocm.gpg] https://repo.radeon.com/amdgpu/${AMDGPU_VERSION}/ubuntu ${UBUNTU_NAME} main" > /etc/apt/sources.list.d/amdgpu.list \
+    && echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/amd-rocm.gpg] https://repo.radeon.com/rocm/apt/${ROCM_VERSION} ${UBUNTU_NAME} main" > /etc/apt/sources.list.d/rocm.list \
     && echo "Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600" > /etc/apt/preferences.d/rocm-pin-600
 
 RUN apt-get update && apt-get install -y \
@@ -44,19 +44,20 @@ ENV PYTHON_VERSION=3.11
 RUN conda install python=${PYTHON_VERSION} pip
 
 ENV PYTHON_LIB_ROCM_URL=https://repo.radeon.com/rocm/manylinux/rocm-rel-${ROCM_VERSION}
+ENV ROCM_WHEEL_VERSION=7.2.0
 
-ENV TRITON_VERSION=3.5.1
-ENV TRITON_VERSION_DETAILS=gita272dfa8-cp311-cp311
-RUN pip3 install $PYTHON_LIB_ROCM_URL/triton-$TRITON_VERSION+rocm$ROCM_VERSION.$TRITON_VERSION_DETAILS-linux_x86_64.whl
-ENV TORCH_VERSION=2.9.1
-ENV TORCH_VERSION_DETAILS=lw.git351ff442-cp311-cp311
-RUN pip3 install $PYTHON_LIB_ROCM_URL/torch-$TORCH_VERSION+rocm$ROCM_VERSION.$TORCH_VERSION_DETAILS-linux_x86_64.whl
-ENV TORCHVISION_VERSION=0.24.0
-ENV TORCHVISION_VERSION_DETAILS=gitb919bd0c-cp311-cp311
-RUN pip3 install $PYTHON_LIB_ROCM_URL/torchvision-$TORCHVISION_VERSION+rocm$ROCM_VERSION.$TORCHVISION_VERSION_DETAILS-linux_x86_64.whl
-ENV TORCHAUDIO_VERSION=2.9.0
-ENV TORCHAUDIO_VERSION_DETAILS=gite3c6ee2b-cp311-cp311
-RUN pip3 install $PYTHON_LIB_ROCM_URL/torchaudio-$TORCHAUDIO_VERSION+rocm$ROCM_VERSION.$TORCHAUDIO_VERSION_DETAILS-linux_x86_64.whl
+ENV TRITON_VERSION=3.6.0
+ENV TRITON_VERSION_DETAILS=gitba5c1517-cp311-cp311
+RUN pip3 install $PYTHON_LIB_ROCM_URL/triton-$TRITON_VERSION+rocm$ROCM_WHEEL_VERSION.$TRITON_VERSION_DETAILS-linux_x86_64.whl
+ENV TORCH_VERSION=2.10.0
+ENV TORCH_VERSION_DETAILS=lw.gitb6ee5fde-cp311-cp311
+RUN pip3 install $PYTHON_LIB_ROCM_URL/torch-$TORCH_VERSION+rocm$ROCM_WHEEL_VERSION.$TORCH_VERSION_DETAILS-linux_x86_64.whl
+ENV TORCHVISION_VERSION=0.25.0
+ENV TORCHVISION_VERSION_DETAILS=git82df5f59-cp311-cp311
+RUN pip3 install $PYTHON_LIB_ROCM_URL/torchvision-$TORCHVISION_VERSION+rocm$ROCM_WHEEL_VERSION.$TORCHVISION_VERSION_DETAILS-linux_x86_64.whl
+ENV TORCHAUDIO_VERSION=2.10.0
+ENV TORCHAUDIO_VERSION_DETAILS=git5047768f-cp311-cp311
+RUN pip3 install $PYTHON_LIB_ROCM_URL/torchaudio-$TORCHAUDIO_VERSION+rocm$ROCM_WHEEL_VERSION.$TORCHAUDIO_VERSION_DETAILS-linux_x86_64.whl
 
 ENV TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1
 
